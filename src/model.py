@@ -269,20 +269,23 @@ def run_training_pipeline():
     metrics.update(cv_results)
 
     # SHAP
-    sample_X = X.sample(min(500, len(X)), random_state=42)
-    explainer, shap_values = compute_shap(model, sample_X)
-
-    # Show single prediction explanation
-    example = explain_single_prediction(explainer, sample_X, row_idx=0)
-    print("\nExample prediction explanation:")
-    for r in example["top_3_reasons"]:
-        print(f"  {r['feature']} = {r['feature_value']} "
-              f"→ demand {r['direction']} by {abs(r['shap_value']):.3f}")
-
-    # Save
+    # Save FIRST — before anything else that could crash
     save_model(model, metrics, X.columns.tolist())
 
-    return model, explainer, X, y
+    # SHAP — optional, wrapped in try/except so a crash never blocks the save
+    try:
+        sample_X = X.sample(min(500, len(X)), random_state=42)
+        explainer, shap_values = compute_shap(model, sample_X)
+        example = explain_single_prediction(explainer, sample_X, row_idx=0)
+        print("\nExample prediction explanation:")
+        for r in example["top_3_reasons"]:
+            print(f"  {r['feature']} = {r['feature_value']} "
+                  f"→ demand {r['direction']} by {abs(r['shap_value']):.3f}")
+        return model, explainer, X, y
+    except Exception as e:
+        print(f"\nSHAP skipped due to version conflict: {e}")
+        print("Model is saved and ready. Continuing to pricing engine.")
+        return model, None, X, y
 
 
 if __name__ == "__main__":
