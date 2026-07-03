@@ -1,8 +1,7 @@
 pandas
-numpy<2
+numpy>=2.0
 scikit-learn
 xgboost
-shap==0.44.1
 fastapi
 uvicorn
 streamlit
