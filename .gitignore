@@ -1,0 +1,20 @@
+﻿# Python
+__pycache__/
+*.py[cod]
+.env
+venv/
+env/
+
+# Jupyter
+.ipynb_checkpoints/
+
+# Data (large CSVs — don't push raw data)
+data/raw/*.csv
+data/raw/*.xlsx
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Streamlit secrets (never push this)
+.streamlit/secrets.toml
